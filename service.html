@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Abed Tahan · Service Feedback</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#F3F5F9;--panel:#FFFFFF;--ink:#1A2433;--muted:#5F6B7A;--line:#DDE3EC;--bad:#D64541;--avg:#F2A900;--good:#2E9E5B;--accent:#1565C0;--navy:#0D47A1;--yellow:#FFD200;--chip:#E8F0FB;--empty:#EEF2F7;color-scheme:light}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans","IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+.wrap{max-width:1280px;margin:0 auto;padding:20px 16px 48px}
+.topbar{background:var(--navy);color:#fff}
+.topbar .in{max-width:1280px;margin:0 auto;padding:10px 16px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}
+.topbar .ctrl{display:flex;justify-content:flex-end;align-items:center;gap:10px;flex-wrap:wrap}
+.nav{display:flex;gap:6px}
+.nav a{color:#DCE6F5;text-decoration:none;font-size:14px;font-weight:600;padding:6px 18px;border-radius:999px}
+.nav a.on{background:#fff;color:var(--navy)}
+@media (max-width:720px){.topbar .in{grid-template-columns:1fr}.nav,.topbar .ctrl{justify-content:center}}
+.topbar label{display:flex;align-items:center;gap:6px;font-size:13px;color:#DCE6F5}
+.topbar select{min-width:0;padding:5px 8px;border-color:transparent}
+.topbar .btn{background:#fff;border-color:#fff;color:var(--navy);font-weight:600;border-radius:999px;padding:6px 16px}
+.hero{background:var(--accent);color:#fff;text-align:center;padding:26px 16px 22px}
+.hero img{height:56px;width:auto;display:block;margin:0 auto 10px}
+h1{font-size:22px;line-height:1.2;margin:0;font-weight:700}
+.hero .sub{color:#DCE6F5}
+.sub{color:var(--muted);font-size:13px;margin-top:4px}
+.btn{font:inherit;font-size:14px;font-weight:500;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 14px;border-radius:8px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn:not(.primary){color:var(--accent);border-color:var(--accent)}
+.btn:focus-visible,select:focus-visible,input:focus-visible,.tab:focus-visible,.day:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.filters{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:10px 0;display:flex;flex-wrap:wrap;gap:10px;align-items:end;border-bottom:1px solid var(--line)}
+.filters label{display:flex;flex-direction:column;font-size:12px;color:var(--muted);gap:3px}
+select,input[type=search]{font:inherit;font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 10px;min-width:150px}
+.tabs{display:flex;gap:4px;margin:16px 0;overflow-x:auto}
+.tab{font:inherit;font-size:14px;font-weight:600;background:none;border:none;color:var(--muted);padding:8px 14px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.tab[aria-selected=true]{background:var(--accent);color:#fff}
+.note{background:var(--chip);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--muted);margin-bottom:16px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.kpi{background:var(--panel);padding:14px 16px}
+.kpi b{display:block;font-size:28px;line-height:1.1;font-weight:700}
+.kpi span{font-size:13px;color:var(--muted)}
+.kpi.bad b{color:var(--bad)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:16px}
+@media (max-width:520px){.grid{grid-template-columns:1fr}select,input[type=search]{min-width:0;width:100%}.filters label{flex:1 1 140px}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
+.panel h2{font-size:15px;margin:0 0 12px;font-weight:600}
+.panel.wide{grid-column:1/-1}
+.chart{position:relative;height:280px}
+.chart.tall{height:340px}
+.cal-month{margin-bottom:18px}
+.cal-month h3{font-size:14px;margin:0 0 8px;font-weight:600}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;max-width:560px}
+.dow{font-size:11px;color:var(--muted);text-align:center}
+.day{font:inherit;border:1px solid transparent;border-radius:6px;min-height:58px;padding:4px 6px;text-align:left;background:var(--empty);color:var(--muted);cursor:default;display:flex;flex-direction:column;justify-content:space-between}
+.day.has{cursor:pointer;color:var(--ink)}
+.day.sel{border-color:var(--ink)}
+.day .n{font-size:12px}
+.day .c{font-size:16px;font-weight:700}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin:6px 0 12px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.day-layout{display:grid;grid-template-columns:minmax(0,580px) minmax(0,1fr);gap:16px}
+@media (max-width:980px){.day-layout{grid-template-columns:1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chip{background:var(--chip);border-radius:999px;padding:3px 10px;font-size:12px}
+.entry{border-top:1px solid var(--line);padding:10px 0}
+.entry:first-of-type{border-top:none}
+.entry .top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px}
+.entry .who{font-weight:600}
+.entry .meta{color:var(--muted);font-size:12px}
+.entry p{margin:6px 0 0;font-size:14px;overflow-wrap:anywhere}
+.fb{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;color:#fff}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{position:sticky;top:0;background:var(--panel);font-weight:600;white-space:nowrap;cursor:pointer}
+td.c{max-width:380px;overflow-wrap:anywhere}
+td.nw{white-space:nowrap}
+.flag{color:var(--bad);font-weight:600}
+.empty{padding:32px;text-align:center;color:var(--muted)}
+.rowbar{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.sheet-pick{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="in">
+  <div></div>
+  <nav class="nav"><a href="index.html">Whatsapp Feedback</a><a href="service.html" class="on">Service Feedback</a></nav>
+  <div class="ctrl">
+  <label>Auto-refresh
+    <select id="refreshEvery"><option value="0">Off</option><option value="1">1 min</option><option value="5" selected>5 min</option><option value="15">15 min</option></select></label>
+  <button class="btn" id="refreshBtn">Refresh now</button>
+  </div>
+</div></div>
+<div class="hero">
+  <img src="https://abedtahan.com/cdn/shop/files/AT_Logo_400x200_Transparent.png?v=1732612010&width=250" alt="Abed Tahan">
+  <h1>Service feedback</h1>
+  <div class="sub" id="dataStatus">Loading…</div>
+</div>
+<div class="wrap">
+
+  <div class="filters">
+    <label>Month<select id="fMonth"></select></label>
+    <label>Company<select id="fDept"></select></label>
+    <label>Type<select id="fType"></select></label>
+    <select id="fSource" hidden></select>
+    <label>Branch<select id="fBranch"></select></label>
+    <button class="btn" id="clearBtn">Clear filters</button>
+  </div>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="overview" aria-selected="true">Overview</button>
+    <button class="tab" role="tab" data-tab="days" aria-selected="false">Day by day</button>
+    <button class="tab" role="tab" data-tab="records" aria-selected="false">All records</button>
+    <button class="tab" role="tab" data-tab="sheets" aria-selected="false">Sheet tabs</button>
+  </nav>
+
+  <section id="tab-overview">
+    <div class="note" id="errNote" hidden></div>
+    <div class="kpis" id="kpis"></div>
+    <div class="grid">
+      <div class="panel wide"><h2>Reviews per day</h2><div class="chart"><canvas id="cDaily"></canvas></div></div>
+      <div class="panel"><h2>By branch</h2><div class="chart tall"><canvas id="cBranch"></canvas></div></div>
+      <div class="panel"><h2>By company</h2><div class="chart tall"><canvas id="cDept"></canvas></div></div>
+      <div class="panel"><h2>By type</h2><div class="chart"><canvas id="cType"></canvas></div></div>
+      <div class="panel"><h2>Bad share, Tahan vs Servico</h2><div class="chart"><canvas id="cBadDept"></canvas></div></div>
+    </div>
+  </section>
+
+  <section id="tab-days" hidden>
+    <div class="day-layout">
+      <div class="panel">
+        <h2>Pick a day</h2>
+        <div class="legend"><span><i style="background:var(--bad)"></i>Mostly bad</span><span><i style="background:var(--avg)"></i>Mostly average</span><span><i style="background:var(--good)"></i>Mostly good</span><span>Number = reviews that day</span></div>
+        <div id="calendars"></div>
+      </div>
+      <div class="panel" id="dayPanel"></div>
+    </div>
+  </section>
+
+  <section id="tab-records" hidden>
+    <div class="rowbar">
+      <input type="search" id="search" placeholder="Search name, phone, service #, comment" style="flex:1;min-width:220px">
+      <span class="sub" id="recCount"></span>
+    </div>
+    <div class="tbl-wrap"><table id="recTable"></table></div>
+  </section>
+
+  <section id="tab-sheets" hidden>
+    <div id="sheetsBody"></div>
+  </section>
+</div>
+
+<script>
+/* ---------- config ---------- */
+const SHEET_ID = '1CD_OiEANiGiYDJlcgk4n88FZp6nYYV_QJfSiGjzpsFY';
+const TABS = ['Feedbacks','Monthly Reviews (Servico vs. Tahan)'];
+const tabUrl = (name, cb) => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${cb}&headers=1&sheet=${encodeURIComponent(name)}&t=${Date.now()}`;
+
+const NONE = '(Not set)';
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const ym = d => ymd(d).slice(0,7);
+const fmtDay = d => `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+const fmtMonth = k => { const [y,m] = k.split('-'); return `${MONTHS[+m-1]} ${y}`; };
+
+function parseClose(s){
+  s = String(s ?? '').trim();
+  if (!s) return { raw:'', h:null, unclear:false };
+  const m = s.match(/^(\d+(?:\.\d+)?)\s*(hours?|hrs?|h)$/i);
+  if (m) return { raw:s, h:+m[1], unclear:false };
+  return { raw:s, h:null, unclear:true };
+}
+
+/* ---------- state ---------- */
+let state = { records: [], sheets: [], loadedAt: null, errors: [] };
+let F = { month:'', dept:'', type:'', source:'', branch:'' };
+let selectedDay = null, activeTab = 'overview', sortKey = 'date', sortDir = -1, activeSheet = 0;
+const charts = {};
+let timer = null, loading = false;
+
+/* ---------- live load from Google Sheets ---------- */
+function parseDate(v){
+  const s = String(v ?? '').trim();
+  if (!s) return null;
+  const g = s.match(/^Date\((\d+),(\d+),(\d+)/);
+  if (g) return new Date(+g[1], +g[2], +g[3]);
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+  if (m) { const y = +m[3] < 100 ? 2000 + +m[3] : +m[3]; return new Date(y, +m[1]-1, +m[2]); }
+  const d = new Date(s);
+  return isNaN(d) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+function toRecords(name, rows){
+  if (!rows.length) return [];
+  const hdr = rows[0].map(h => String(h).trim().toLowerCase());
+  const ix = k => hdr.indexOf(k);
+  if (ix('date') < 0 || ix('feedback') < 0) return [];
+  const get = (r,k) => { const i = ix(k); return i < 0 ? '' : String(r[i] ?? '').trim(); };
+  const out = [];
+  rows.slice(1).forEach(r => {
+    const date = parseDate(get(r,'date'));
+    if (!date) return;
+    const c = parseClose(get(r,'time to close'));
+    const company = r => {
+      const t = get(r,'tahan').toLowerCase(), b = get(r,'branch').toLowerCase();
+      if (t.includes('servico')) return 'Servico';
+      if (t.includes('tahan') || /^(true|yes|1|x)$/.test(t)) return 'Tahan';
+      if (/^(false|no|0)$/.test(t)) return 'Servico';
+      return b.includes('servico') ? 'Servico' : 'Tahan';
+    };
+    out.push({
+      phone:get(r,'number'), name:get(r,'name'), branch:get(r,'branch') || NONE, feedback:get(r,'feedback') || NONE,
+      comment:get(r,'comment'), dept:company(r), type:get(r,'type') || NONE, invoice:get(r,'service number'),
+      link:get(r,'link'), date, source:get(r,'source') || name, status:get(r,'status') || NONE,
+      closeRaw:c.raw, closeH:c.h, closeUnclear:c.unclear
+    });
+  });
+  return out;
+}
+
+// JSONP via <script> tag: works from file://, no CORS needed
+let cbSeq = 0;
+function loadTab(name){
+  return new Promise((resolve, reject) => {
+    const cb = '__gviz' + (++cbSeq) + '_' + Date.now();
+    const el = document.createElement('script');
+    const done = () => { delete window[cb]; el.remove(); clearTimeout(to); };
+    const to = setTimeout(() => { done(); reject(new Error(`${name}: timed out`)); }, 20000);
+    window[cb] = resp => {
+      done();
+      if (!resp || resp.status === 'error') {
+        const msg = resp && resp.errors && resp.errors[0] ? (resp.errors[0].detailed_message || resp.errors[0].message) : 'error';
+        return reject(new Error(`${name}: ${msg}`));
+      }
+      const t = resp.table;
+      const cell = c => c == null ? '' : (c.f != null ? c.f : (c.v == null ? '' : c.v));
+      let rows = [t.cols.map(c => c.label || '')].concat(t.rows.map(r => (r.c || []).map(cell)));
+      rows = rows.filter(r => r.some(c => String(c).trim() !== ''));
+      let maxC = 0; rows.forEach(r => r.forEach((c,i) => { if (String(c).trim() !== '') maxC = Math.max(maxC, i+1); }));
+      resolve({ name, rows: rows.map(r => r.slice(0, maxC)) });
+    };
+    el.onerror = () => { done(); reject(new Error(`${name}: could not reach Google Sheets (check sharing or network)`)); };
+    el.src = tabUrl(name, cb);
+    document.head.appendChild(el);
+  });
+}
+
+async function loadAll(){
+  if (loading) return;
+  loading = true;
+  $('#refreshBtn').disabled = true;
+  $('#dataStatus').textContent = 'Loading from Google Sheets…';
+  const results = await Promise.allSettled(TABS.map(loadTab));
+  const sheets = [], errors = [];
+  results.forEach((r,i) => r.status === 'fulfilled' ? sheets.push(r.value) : errors.push(r.reason.message || TABS[i]));
+  const records = sheets.flatMap(s => toRecords(s.name, s.rows));
+  if (sheets.length) state = { records, sheets, loadedAt: new Date(), errors };
+  else state.errors = errors;
+  loading = false;
+  $('#refreshBtn').disabled = false;
+  renderAll();
+}
+
+function schedule(){
+  clearInterval(timer);
+  const m = +$('#refreshEvery').value;
+  if (m) timer = setInterval(loadAll, m * 60000);
+}
+$('#refreshBtn').onclick = loadAll;
+$('#refreshEvery').onchange = schedule;
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && state.loadedAt && Date.now() - state.loadedAt > 60000 && +$('#refreshEvery').value) loadAll();
+});
+
+/* ---------- filters ---------- */
+const uniq = (arr) => [...new Set(arr)].sort((a,b) => a === NONE ? 1 : b === NONE ? -1 : String(a).localeCompare(String(b)));
+function fillSelect(id, values, key, labelFn){
+  const sel = $(id), cur = F[key];
+  sel.innerHTML = `<option value="">All</option>` + values.map(v => `<option value="${esc(v)}">${esc(labelFn ? labelFn(v) : v)}</option>`).join('');
+  sel.value = values.includes(cur) ? cur : '';
+  F[key] = sel.value;
+}
+function buildFilters(){
+  const R = state.records;
+  fillSelect('#fMonth', uniq(R.map(r => ym(r.date))).reverse(), 'month', fmtMonth);
+  fillSelect('#fDept', uniq(R.map(r => r.dept)), 'dept');
+  fillSelect('#fType', uniq(R.map(r => r.type)), 'type');
+  fillSelect('#fSource', uniq(R.map(r => r.source)), 'source');
+  fillSelect('#fBranch', uniq(R.map(r => r.branch)), 'branch');
+}
+[['#fMonth','month'],['#fDept','dept'],['#fType','type'],['#fSource','source'],['#fBranch','branch']].forEach(([id,k]) => {
+  $(id).onchange = e => { F[k] = e.target.value; selectedDay = null; renderViews(); };
+});
+$('#clearBtn').onclick = () => { F = { month:'', dept:'', type:'', source:'', branch:'' }; selectedDay = null; buildFilters(); renderViews(); };
+
+function filtered(){
+  return state.records.filter(r =>
+    (!F.month || ym(r.date) === F.month) && (!F.dept || r.dept === F.dept) && (!F.type || r.type === F.type) &&
+    (!F.source || r.source === F.source) && (!F.branch || r.branch === F.branch));
+}
+
+/* ---------- helpers ---------- */
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function fbColor(f){
+  const k = String(f).toLowerCase();
+  if (k.includes('bad') || k.includes('poor')) return css('--bad');
+  if (k.includes('average') || k.includes('neutral')) return css('--avg');
+  if (k.includes('good') || k.includes('excellent') || k.includes('great')) return css('--good');
+  return css('--muted');
+}
+const FB_ORDER = ['bad','average','good'];
+const fbSort = (a,b) => { const ia = FB_ORDER.findIndex(x => a.toLowerCase().includes(x)), ib = FB_ORDER.findIndex(x => b.toLowerCase().includes(x)); return (ia<0?9:ia)-(ib<0?9:ib) || a.localeCompare(b); };
+const median = a => { if (!a.length) return null; const s = [...a].sort((x,y)=>x-y), m = s.length>>1; return s.length%2 ? s[m] : (s[m-1]+s[m])/2; };
+const isBad = r => String(r.feedback).toLowerCase().includes('bad');
+const group = (rows, fn) => rows.reduce((m,r) => { const k = fn(r); (m[k] = m[k] || []).push(r); return m; }, {});
+
+function makeChart(id, cfg){
+  if (charts[id]) charts[id].destroy();
+  const el = document.getElementById(id);
+  charts[id] = new Chart(el, cfg);
+}
+function stacked(id, rows, keyFn, { horizontal=false, sortBy='count', labelOrder=null } = {}){
+  const g = group(rows, keyFn);
+  let labels = labelOrder || Object.keys(g).sort((a,b) => sortBy === 'count' ? g[b].length - g[a].length : a.localeCompare(b));
+  const fbs = uniq(rows.map(r => r.feedback)).filter(f => f !== NONE).sort(fbSort); // hide unrated in charts
+  makeChart(id, {
+    type:'bar',
+    data:{ labels: labels.map(l => sortBy === 'day' ? l.slice(8).replace(/^0/,'') + ' ' + MONTHS[+l.slice(5,7)-1].slice(0,3) : l),
+      datasets: fbs.map(f => ({ label:f, data: labels.map(l => (g[l]||[]).filter(r => r.feedback === f).length), backgroundColor: fbColor(f), borderRadius:3 })) },
+    options:{ indexAxis: horizontal ? 'y' : 'x', responsive:true, maintainAspectRatio:false,
+      scales:{ x:{ stacked:true, grid:{ display:!horizontal ? false : true } }, y:{ stacked:true, grid:{ display: horizontal ? false : true }, ticks:{ precision:0 } } },
+      plugins:{ legend:{ position:'bottom', labels:{ boxWidth:10 } } } }
+  });
+}
+
+/* ---------- overview ---------- */
+function renderOverview(rows){
+  const total = rows.length, bad = rows.filter(isBad).length;
+  const avg = rows.filter(r => /average/i.test(r.feedback)).length;
+  const good = rows.filter(r => /good/i.test(r.feedback)).length;
+  const rated = bad + avg + good;
+  $('#kpis').innerHTML = [
+    ['', total, 'Reviews'],
+    ['bad', total ? Math.round(bad/total*100) + '%' : '–', `Bad (${bad})`],
+    ['', avg, 'Average'],
+    ['', good, 'Good'],
+    ['', rated, 'Rated reviews'],
+  ].map(([c,v,l]) => `<div class="kpi ${c}"><b>${v}</b><span>${l}</span></div>`).join('');
+
+  Chart.defaults.color = css('--muted');
+  Chart.defaults.borderColor = css('--line');
+  Chart.defaults.font.family = '"IBM Plex Sans", system-ui, sans-serif';
+
+  const days = uniq(rows.map(r => ymd(r.date)));
+  stacked('cDaily', rows, r => ymd(r.date), { sortBy:'day', labelOrder: days });
+  stacked('cBranch', rows, r => r.branch, { horizontal:true });
+  stacked('cDept', rows, r => r.dept, { horizontal:true });
+  stacked('cType', rows, r => r.type);
+
+  const gd = group(rows, r => r.dept);
+  const dl = Object.keys(gd).map(k => [k, Math.round(gd[k].filter(isBad).length / gd[k].length * 100), gd[k].length]).sort((a,b) => b[1]-a[1]);
+  makeChart('cBadDept', { type:'bar', data:{ labels: dl.map(x => x[0]), datasets:[{ label:'Bad %', data: dl.map(x => x[1]), backgroundColor: css('--bad'), borderRadius:3 }] },
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label: c => `${c.raw}% bad of ${dl[c.dataIndex][2]} reviews` } } },
+      scales:{ x:{ max:100, ticks:{ callback: v => v + '%' } }, y:{ grid:{ display:false } } } } });
+}
+
+/* ---------- day by day ---------- */
+function renderDays(rows){
+  const byDay = group(rows, r => ymd(r.date));
+  const months = uniq(rows.map(r => ym(r.date))).reverse();
+  if (!months.length) { $('#calendars').innerHTML = '<div class="empty">No reviews match these filters.</div>'; $('#dayPanel').innerHTML=''; return; }
+  if (!selectedDay || !byDay[selectedDay]) selectedDay = Object.keys(byDay).sort().pop();
+  const bad = css('--bad'), avg = css('--avg'), good = css('--good');
+  $('#calendars').innerHTML = months.map(mk => {
+    const [y,m] = mk.split('-').map(Number);
+    const first = new Date(y, m-1, 1), dim = new Date(y, m, 0).getDate();
+    const offset = (first.getDay() + 6) % 7; // Monday start
+    let cells = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d => `<div class="dow">${d}</div>`).join('');
+    cells += '<div></div>'.repeat(offset);
+    for (let d = 1; d <= dim; d++){
+      const k = `${mk}-${String(d).padStart(2,'0')}`, list = byDay[k];
+      if (!list) { cells += `<div class="day"><span class="n">${d}</span></div>`; continue; }
+      const b = list.filter(isBad).length / list.length;
+      const g = list.filter(r => String(r.feedback).toLowerCase().includes('good')).length / list.length;
+      const col = b >= .5 ? bad : g >= .5 ? good : avg;
+      const alpha = Math.min(1, .35 + list.length / 12);
+      cells += `<button class="day has ${k===selectedDay?'sel':''}" data-day="${k}" style="background:color-mix(in srgb, ${col} ${Math.round(alpha*100)}%, transparent)" aria-label="${fmtDay(new Date(y,m-1,d))}: ${list.length} reviews"><span class="n">${d}</span><span class="c">${list.length}</span></button>`;
+    }
+    return `<div class="cal-month"><h3>${fmtMonth(mk)}</h3><div class="cal">${cells}</div></div>`;
+  }).join('');
+  document.querySelectorAll('.day.has').forEach(b => b.onclick = () => { selectedDay = b.dataset.day; renderDays(filtered()); });
+
+  const list = (byDay[selectedDay] || []).slice().sort((a,b) => fbSort(a.feedback,b.feedback));
+  const d = parseDate(selectedDay);
+  const chip = (obj) => Object.entries(obj).sort((a,b) => b[1]-a[1]).map(([k,v]) => `<span class="chip">${esc(k)}: ${v}</span>`).join('');
+  const cnt = fn => list.reduce((m,r) => (m[fn(r)] = (m[fn(r)]||0)+1, m), {});
+  $('#dayPanel').innerHTML = `
+    <h2>${fmtDay(d)} — ${list.length} review${list.length===1?'':'s'}</h2>
+    <div class="chips">${chip(cnt(r => r.feedback))}</div>
+    <div class="chips">${chip(cnt(r => r.branch))}</div>
+    <div class="chips">${chip(cnt(r => r.dept))}</div>
+    ${list.map(r => `<div class="entry">
+      <div class="top"><span class="fb" style="background:${fbColor(r.feedback)}">${esc(r.feedback)}</span>
+        <span class="who">${esc(r.name)}</span><span class="meta">${esc(r.branch)} · ${esc(r.dept)} · ${esc(r.type)}</span></div>
+      <div class="meta">Service # ${esc(r.invoice)} · ${esc(r.phone)}</div>
+      ${r.comment ? `<p dir="auto">${esc(r.comment)}</p>` : ''}
+    </div>`).join('')}`;
+}
+
+/* ---------- records ---------- */
+const COLS = [['date','Date'],['branch','Branch'],['feedback','Feedback'],['dept','Company'],['type','Type'],['invoice','Service #'],['name','Name'],['phone','Phone'],['comment','Comment']];
+function renderRecords(rows){
+  const q = $('#search').value.trim().toLowerCase();
+  let list = q ? rows.filter(r => [r.name,r.phone,r.invoice,r.comment,r.branch].join(' ').toLowerCase().includes(q)) : rows.slice();
+  list.sort((a,b) => {
+    let x = a[sortKey], y = b[sortKey];
+    if (x instanceof Date) { x = +x; y = +y; }
+    return (x > y ? 1 : x < y ? -1 : 0) * sortDir;
+  });
+  $('#recCount').textContent = `${list.length} of ${rows.length} records`;
+  $('#recTable').innerHTML = `<thead><tr>${COLS.map(([k,l]) => `<th data-k="${k}">${l}${sortKey===k ? (sortDir>0?' ▲':' ▼') : ''}</th>`).join('')}</tr></thead><tbody>${
+    list.map(r => `<tr>
+      <td class="nw">${ymd(r.date)}</td><td class="nw">${esc(r.branch)}</td>
+      <td><span class="fb" style="background:${fbColor(r.feedback)}">${esc(r.feedback)}</span></td>
+      <td>${esc(r.dept)}</td><td class="nw">${esc(r.type)}</td><td class="nw">${esc(r.invoice)}</td><td>${esc(r.name)}</td>
+      <td class="nw">${esc(r.phone)}</td><td class="c" dir="auto">${esc(r.comment)}</td></tr>`).join('') || `<tr><td colspan="9" class="empty">No records match.</td></tr>`
+  }</tbody>`;
+  document.querySelectorAll('#recTable th').forEach(th => th.onclick = () => {
+    const k = th.dataset.k; if (sortKey === k) sortDir *= -1; else { sortKey = k; sortDir = 1; } renderRecords(filtered());
+  });
+}
+$('#search').oninput = () => renderRecords(filtered());
+
+/* ---------- raw sheet tabs ---------- */
+function renderSheets(){
+  const body = $('#sheetsBody');
+  if (!state.sheets.length) {
+    body.innerHTML = `<div class="panel empty">No tabs loaded yet. Click Refresh now.</div>`;
+    return;
+  }
+  if (activeSheet >= state.sheets.length) activeSheet = 0;
+  const s = state.sheets[activeSheet];
+  body.innerHTML = `<div class="sheet-pick">${state.sheets.map((x,i) => `<button class="btn ${i===activeSheet?'primary':''}" data-i="${i}">${esc(x.name)} (${Math.max(0,x.rows.length-1)})</button>`).join('')}</div>
+    <div class="tbl-wrap"><table>${s.rows.length ? `<thead><tr>${s.rows[0].map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${s.rows.slice(1).map(r => `<tr>${r.map(c => `<td dir="auto">${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody>` : '<tr><td class="empty">This tab is empty.</td></tr>'}</table></div>`;
+  body.querySelectorAll('.sheet-pick .btn').forEach(b => b.onclick = () => { activeSheet = +b.dataset.i; renderSheets(); });
+}
+
+/* ---------- tabs & render ---------- */
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  activeTab = t.dataset.tab;
+  document.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', x === t));
+  document.querySelectorAll('section[id^=tab-]').forEach(s => s.hidden = s.id !== 'tab-' + activeTab);
+  renderViews();
+});
+
+function renderViews(){
+  const rows = filtered();
+  if (activeTab === 'overview') renderOverview(rows);
+  if (activeTab === 'days') renderDays(rows);
+  if (activeTab === 'records') renderRecords(rows);
+  if (activeTab === 'sheets') renderSheets();
+}
+function renderAll(){
+  const t = state.loadedAt ? state.loadedAt.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) : '–';
+  $('#dataStatus').textContent = `${state.records.length} records, updated ${t}`;
+  const en = $('#errNote');
+  en.hidden = !state.errors.length;
+  en.textContent = state.errors.length ? 'Some tabs did not load: ' + state.errors.join('; ') : '';
+  buildFilters();
+  renderViews();
+}
+
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', renderViews);
+schedule();
+loadAll();
+</script>
+</body>
+</html>
